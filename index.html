@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feedback Form</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 20px;
+        }
+
+        .card {
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px 0;
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+            background: #fff;
+            max-width: 400px;
+        }
+
+        .card h3 {
+            margin-top: 0;
+            color: #333;
+        }
+
+        .card p {
+            margin: 5px 0;
+        }
+
+        #display {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Feedback Form</h2>
+    <form id="form">
+        <label for="name">Name:</label>
+        <input type="text" id="name" required><br><br>
+
+        <label for="mail">Email:</label>
+        <input type="email" id="mail" required><br><br>
+
+        <label for="phone">Phone:</label>
+        <input type="tel" id="phone" required><br><br>
+
+        <label for="text">Feedback:</label>
+        <textarea id="text" required></textarea><br><br>
+
+        <label for="ratings">Rating:</label>
+        <select id="ratings">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+        </select><br><br>
+
+        <button id="btn">Submit</button>
+    </form>
+
+    <h2>Submitted Feedback:</h2>
+    <div id="display"></div>
+
+    <script>
+       let button = document.getElementById("btn");
+let displayDiv = document.getElementById("display");
+
+button.addEventListener("click", (event) => {
+    event.preventDefault();
+
+    // Get values from input fields
+    let name = document.getElementById("name").value.trim();
+    let email = document.getElementById("mail").value.trim();
+    let number = document.getElementById("phone").value.trim();
+    let fed = document.getElementById("text").value.trim();
+    let rate = document.getElementById("ratings").value;
+
+    if (!name || !email || !number || !fed) {
+        alert("Please fill in all fields before submitting.");
+        return;
+    }
+
+    // Create feedback object
+    let feedback = {
+        name,
+        email,
+        number,
+        fed,
+        rate
+    };
+
+    // Get existing feedback from localStorage
+    let feedbackList = JSON.parse(localStorage.getItem("feedbackList")) || [];
+
+    // Check if the same feedback (name + email) already exists
+    let isDuplicate = feedbackList.some(item => item.name === name && item.email === email);
+
+    if (isDuplicate) {
+        alert("This feedback is already submitted!");
+        return;
+    }
+
+    alert("Thank you for your feedback!");
+
+    // Add new feedback
+    feedbackList.push(feedback);
+
+    // Save updated list to localStorage
+    localStorage.setItem("feedbackList", JSON.stringify(feedbackList));
+
+    // Display the new feedback
+    displayFeedback();
+});
+
+function displayFeedback() {
+    displayDiv.innerHTML = ""; // Clear previous display
+
+    let feedbackList = JSON.parse(localStorage.getItem("feedbackList")) || [];
+
+    feedbackList.forEach((feedback, index) => {
+        let card = document.createElement("div");
+        card.classList.add("card");
+
+        card.innerHTML = `
+            <h3>${feedback.name}</h3>
+            <p><strong>Email:</strong> ${feedback.email}</p>
+            <p><strong>Phone:</strong> ${feedback.number}</p>
+            <p><strong>Feedback:</strong> ${feedback.fed}</p>
+            <p><strong>Rating:</strong> ${feedback.rate} ⭐</p>
+            <button onclick="deleteFeedback(${index})">Delete</button>
+        `;
+
+        displayDiv.appendChild(card);
+    });
+}
+
+function deleteFeedback(index) {
+    let feedbackList = JSON.parse(localStorage.getItem("feedbackList")) || [];
+    feedbackList.splice(index, 1);
+    localStorage.setItem("feedbackList", JSON.stringify(feedbackList));
+    displayFeedback();
+}
+
+// Load feedback when the page loads
+window.onload = displayFeedback;
+</script>
+
+</body>
+</html>
